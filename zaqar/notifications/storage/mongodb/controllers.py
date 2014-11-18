@@ -1,4 +1,4 @@
-# Copyright (c) 2013 Rackspace Hosting, Inc.
+# Copyright (c) 2013 Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,10 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import zaqar.bootstrap
-import zaqar.version
+"""Exports Mongodb storage controllers.
 
-Bootstrap = zaqar.bootstrap.Bootstrap
+Field Mappings:
+    In order to reduce the disk / memory space used,
+    fields name will be, most of the time, the first
+    letter of their long name. Fields mapping will be
+    updated and documented in each controller class.
+"""
+
+from zaqar.notifications.storage.mongodb import subscriptions
 
 
-__version__ = zaqar.version.version_info.cached_version_string()
+SubscrptionController = subscriptions.SubscriptionController

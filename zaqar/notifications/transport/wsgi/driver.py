@@ -23,11 +23,10 @@ from zaqar.common import decorators
 from zaqar.common.transport.wsgi import helpers
 from zaqar.i18n import _
 import zaqar.openstack.common.log as logging
-from zaqar.queues import transport
-from zaqar.queues.transport import auth
-from zaqar.queues.transport import validation
-from zaqar.queues.transport.wsgi import v1_0
-from zaqar.queues.transport.wsgi import v1_1
+from zaqar.notifications import transport
+from zaqar.notifications.transport import auth
+from zaqar.notifications.transport import validation
+from zaqar.notifications.transport.wsgi import v2_0
 
 _WSGI_OPTIONS = (
     cfg.StrOpt('bind', default='127.0.0.1',
@@ -80,18 +79,14 @@ class Driver(transport.DriverBase):
         """Initialize hooks and URI routes to resources."""
 
         catalog = [
-            ('/v1', v1_0.public_endpoints(self)),
-            ('/v1.1', v1_1.public_endpoints(self)),
+            ('/v2.0', v2_0.public_endpoints(self))
         ]
 
         if self._conf.admin_mode:
             catalog.extend([
-                ('/v1', v1_0.private_endpoints(self)),
-                ('/v1.1', v1_1.private_endpoints(self)),
+                ('/v2.0', v2_0.private_endpoints(self))
             ])
-
         self.app = falcon.API(before=self.before_hooks)
-
         for version_path, endpoints in catalog:
             for route, resource in endpoints:
                 self.app.add_route(version_path + route, resource)
@@ -114,7 +109,4 @@ class Driver(transport.DriverBase):
         httpd = simple_server.make_server(self._wsgi_conf.bind,
                                           self._wsgi_conf.port,
                                           self.app)
-        import pdb
-        pdb.set_trace()
         httpd.serve_forever()
-        pdb.set_trace()

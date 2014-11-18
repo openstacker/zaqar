@@ -17,7 +17,7 @@ import os
 from oslo.config import cfg
 
 from zaqar.common import cli
-from zaqar.queues import bootstrap
+from zaqar import bootstrap
 
 
 @cli.runnable
