@@ -65,7 +65,8 @@ def dynamic_conf(uri, options, conf=None):
     return conf
 
 
-def load_storage_driver(conf, cache, storage_type=None, control_mode=False):
+def load_storage_driver(conf, cache, storage_type=None, control_mode=False,
+                        service_type='queues'):
     """Loads a storage driver and returns it.
 
     The driver's initializer will be passed conf and cache as
@@ -83,7 +84,7 @@ def load_storage_driver(conf, cache, storage_type=None, control_mode=False):
     """
 
     mode = 'control' if control_mode else 'data'
-    driver_type = 'zaqar.queues.{0}.storage'.format(mode)
+    driver_type = 'zaqar.{0}.{1}.storage'.format(service_type, mode)
     storage_type = storage_type or conf['drivers'].storage
 
     try:

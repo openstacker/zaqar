@@ -23,7 +23,7 @@ from zaqar.common.storage import select
 from zaqar.openstack.common import log
 from zaqar.queues import storage
 from zaqar.queues.storage import errors
-from zaqar.queues.storage import utils
+from zaqar.common import storage_utils
 
 LOG = log.getLogger(__name__)
 
@@ -172,7 +172,7 @@ class QueueController(RoutingController):
 
         # make a heap compared with 'name'
         ls = heapq.merge(*[
-            utils.keyify('name', page)
+            storage_utils.keyify('name', page)
             for page in all_pages()
         ])
 
@@ -403,9 +403,9 @@ class Catalog(object):
         :rtype: zaqar.queues.storage.base.DataDriverBase
         """
         pool = self._pools_ctrl.get(pool_id, detailed=True)
-        conf = utils.dynamic_conf(pool['uri'], pool['options'],
+        conf = storage_utils.dynamic_conf(pool['uri'], pool['options'],
                                   conf=self._conf)
-        return utils.load_storage_driver(conf, self._cache)
+        return storage_utils.load_storage_driver(conf, self._cache)
 
     @decorators.caches(_pool_cache_key, _POOL_CACHE_TTL)
     def _pool_id(self, queue, project=None):

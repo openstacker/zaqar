@@ -18,7 +18,7 @@
 This app should be used by external WSGI
 containers. For example:
 
-    $ gunicorn zaqar.queues.transport.wsgi.app:app
+    $ gunicorn zaqar.notifications.transport.wsgi.app:app
 
 NOTE: As for external containers, it is necessary
 to put config files in the standard paths. There's
@@ -34,6 +34,6 @@ from zaqar import bootstrap
 # to pick up common options from openstack.common.log, since
 # that module uses the global CONF instance exclusively.
 conf = cfg.CONF
-conf(project='zaqar', prog='zaqar-queues', args=[])
+conf(project='zaqar', prog='zaqar-notifications', args=[])
 
-app = bootstrap.Bootstrap(conf).queues_transport.app
+app = bootstrap.Bootstrap(conf).notifications_transport.app

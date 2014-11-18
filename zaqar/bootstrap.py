@@ -21,9 +21,10 @@ from zaqar.common import errors
 from zaqar.i18n import _
 from zaqar.openstack.common.cache import cache as oslo_cache
 from zaqar.openstack.common import log
+from zaqar.notifications.storage import pipeline as notifications_pipeline
 from zaqar.queues.storage import pipeline
 from zaqar.queues.storage import pooling
-from zaqar.queues.storage import utils as storage_utils
+from zaqar.common import storage_utils
 
 LOG = log.getLogger(__name__)
 
@@ -93,19 +94,36 @@ class Bootstrap(object):
             self.conf.unreliable = True
 
     @decorators.lazy_property(write=False)
-    def storage(self):
+    def queues_storage(self):
         LOG.debug(u'Loading storage driver')
 
         if self.conf.pooling:
             LOG.debug(u'Storage pooling enabled')
             storage_driver = pooling.DataDriver(self.conf, self.cache,
-                                                self.control)
+                                                self.control,
+                                                service_type='queues')
         else:
             storage_driver = storage_utils.load_storage_driver(
                 self.conf, self.cache)
 
         LOG.debug(u'Loading storage pipeline')
         return pipeline.DataDriver(self.conf, storage_driver)
+
+    @decorators.lazy_property(write=False)
+    def notifications_storage(self):
+        LOG.debug(u'Loading storage driver')
+
+        if self.conf.pooling:
+            LOG.debug(u'Storage pooling enabled')
+            storage_driver = pooling.DataDriver(self.conf, self.cache,
+                                                self.control,
+                                                service_type='notifications')
+        else:
+            storage_driver = storage_utils.load_storage_driver(
+                self.conf, self.cache, service_type='notifications')
+
+        LOG.debug(u'Loading storage pipeline')
+        return notifications_pipeline.DataDriver(self.conf, storage_driver)
 
     @decorators.lazy_property(write=False)
     def control(self):
@@ -125,17 +143,16 @@ class Bootstrap(object):
             raise errors.InvalidDriver(exc)
 
     @decorators.lazy_property(write=False)
-    def transport(self):
+    def queues_transport(self):
         transport_name = self.driver_conf.transport
         LOG.debug(u'Loading transport driver: %s', transport_name)
 
         args = [
             self.conf,
-            self.storage,
+            self.queues_storage,
             self.cache,
             self.control,
         ]
-
         try:
             mgr = driver.DriverManager('zaqar.queues.transport',
                                        transport_name,
@@ -146,5 +163,33 @@ class Bootstrap(object):
             LOG.exception(exc)
             raise errors.InvalidDriver(exc)
 
+    @decorators.lazy_property(write=False)
+    def notifications_transport(self):
+        transport_name = self.driver_conf.transport
+        LOG.debug(u'Loading transport driver: %s', transport_name)
+
+        args = [
+            self.conf,
+            self.notifications_storage,
+            self.cache,
+            self.control,
+        ]
+        try:
+            mgr = driver.DriverManager('zaqar.notifications.transport',
+                                       transport_name,
+                                       invoke_on_load=True,
+                                       invoke_args=args)
+            return mgr.driver
+        except RuntimeError as exc:
+            LOG.exception(exc)
+            raise errors.InvalidDriver(exc)
+
     def run(self):
-        self.transport.listen()
+        base_transport = self.queues_transport
+
+        for version_path, endpoints in self.notifications_transport.catalog:
+            for route, resource in endpoints:
+                base_transport.app._app.add_route(version_path + route,
+                                                  resource)
+
+        base_transport.listen()

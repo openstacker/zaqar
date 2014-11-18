@@ -850,3 +850,104 @@ class FlavorsBase(ControllerBase):
         """Deletes all flavors from storage."""
 
         raise NotImplementedError
+
+
+@six.add_metaclass(abc.ABCMeta)
+class SubscriptionBase(ControllerBase):
+    """A controller for managing subscription."""
+
+    @abc.abstractmethod
+    def list(self, topic, project=None, marker=None, limit=10, detailed=False):
+        """Lists all registered subscriptions.
+
+        :param project: Project this subscription belongs to.
+        :type project: six.text_type
+        :param marker: used to determine which subscription to start with
+        :type marker: six.text_type
+        :param limit: (Default 10) Max number of results to return
+        :type limit: int
+        :param detailed: whether to include capabilities
+        :type detailed: bool
+        :returns: A list of subscriptions - name, project
+        :rtype: [{}]
+        """
+
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def create(self, topic, endpoint, protocol, project=None):
+        """Registers a subscription entry.
+
+        :param topic: The topic of this subscription interested in.
+        :type topic: six.text_type
+        :param endpoint: A location the notification will send to.
+        :type endpoint: six.text_type
+        :param protocol: The protocol of endpoint.
+        :type protocol: six.text_type
+        :param project: Project this flavor belongs to.
+        :type project: six.text_type
+        """
+
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get(self, subscription_id, project=None):
+        """Returns a single subscription entry.
+
+        :param subscription_id: ID of this subscription.
+        :type subscription_id: six.text_type
+        :param project: Project this subscription belongs to.
+        :type project: six.text_type
+        :rtype: {}
+        :raises: SubscriptionDoesNotExist if not found
+        """
+
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def exists(self, subscription_id, project=None):
+        """Verifies whether the subscription exists.
+
+        :param subscription_id: ID of this subscription.
+        :type subscription_id: six.text_type
+        :param project: Project this subscription belongs to.
+        :type project: six.text_type
+        :returns: True if the subscription exists
+        :rtype: bool
+        """
+
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def delete(self, subscription_id, project=None):
+        """Removes a subscription entry.
+
+        :param subscription_id: ID of the subscription.
+        :type subscription_id: six.text_type
+        :param project: Project this subscription belongs to.
+        :type project: six.text_type
+        :rtype: None
+        """
+
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def update(self, subscription_id, project=None, **kwargs):
+        """Updates the subscription
+
+        :param subscription_id: ID of the subscription.
+        :type subscription_id: text
+        :param project: Project this subscription belongs to.
+        :type project: six.text_type
+        :param kwargs: one of: `endpoint`, `protocol`
+        :type kwargs: dict
+        :raises: SubscriptionDoesNotExist if not found
+        """
+
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def drop_all(self):
+        """Deletes all subscriptions from storage."""
+
+        raise NotImplementedError

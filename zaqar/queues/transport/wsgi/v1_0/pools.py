@@ -42,7 +42,7 @@ from zaqar.common.schemas import pools as schema
 from zaqar.common import utils as common_utils
 from zaqar.openstack.common import log
 from zaqar.queues.storage import errors
-from zaqar.queues.storage import utils as storage_utils
+from zaqar.common import storage_utils
 from zaqar.queues.transport import utils as transport_utils
 from zaqar.queues.transport.wsgi import errors as wsgi_errors
 from zaqar.queues.transport.wsgi import utils as wsgi_utils
