@@ -87,9 +87,9 @@ class Driver(transport.DriverBase):
             catalog.extend([
                 ('/v2.0', v2_0.private_endpoints(self))
             ])
-        
+       
         self.catalog = catalog
-        
+
         self.app = falcon.API(before=self.before_hooks)
         for version_path, endpoints in catalog:
             for route, resource in endpoints:

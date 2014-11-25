@@ -143,7 +143,11 @@ class Bootstrap(object):
             raise errors.InvalidDriver(exc)
 
     @decorators.lazy_property(write=False)
+<<<<<<< HEAD:zaqar/bootstrap.py
     def queues_transport(self):
+=======
+    def base_transport(self):
+>>>>>>> e7dbe1feebc09cb33344999f064439d16571b349:zaqar/bootstrap.py
         transport_name = self.driver_conf.transport
         LOG.debug(u'Loading transport driver: %s', transport_name)
 

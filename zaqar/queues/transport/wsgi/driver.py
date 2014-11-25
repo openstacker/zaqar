@@ -114,4 +114,7 @@ class Driver(transport.DriverBase):
         httpd = simple_server.make_server(self._wsgi_conf.bind,
                                           self._wsgi_conf.port,
                                           self.app)
+        import pdb
+        pdb.set_trace()
         httpd.serve_forever()
+        pdb.set_trace()
